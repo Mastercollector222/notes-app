@@ -9,7 +9,15 @@ const Note = require('./models/Note');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+    origin: ['http://localhost:3000', 'https://notes-app-xdxo.onrender.com'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
@@ -43,14 +51,17 @@ app.get('/api/notes', async (req, res) => {
 
 app.post('/api/notes', async (req, res) => {
     try {
+        console.log('Received POST request to /api/notes with body:', req.body);
         const { title, content } = req.body;
+        
         if (!title || !content) {
+            console.log('Missing title or content in request');
             return res.status(400).json({ error: 'Title and content are required' });
         }
 
         const note = new Note({ title, content });
         await note.save();
-        console.log('New note saved to database:', note);
+        console.log('Successfully saved note:', note);
         res.status(201).json(note);
     } catch (error) {
         console.error('Error creating note:', error);
