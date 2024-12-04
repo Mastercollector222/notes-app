@@ -14,12 +14,20 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Connect to MongoDB
+if (!process.env.MONGODB_URI) {
+    console.error('MONGODB_URI is not defined in environment variables');
+    process.exit(1);
+}
+
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
 .then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+.catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+});
 
 // API Routes
 app.get('/api/notes', async (req, res) => {
